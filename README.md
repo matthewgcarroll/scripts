@@ -9,3 +9,4 @@ Utility scripts for various things
 * <a href="https://github.com/ianmcgowan/scripts/blob/master/scorecard.au3">scorecard.au3</a> - an <a href="https://www.autoitscript.com/site/autoit/">AutoIT</a> script to scrape data from one web application (navigating as needed) and paste it into another.  A good template for how you might go about doing that.
 * <a href="https://github.com/ianmcgowan/scripts/blob/master/aba.py">aba.py</a> - a small script to lookup bank addresses, given a list of ABA numbers.  Uses <a href="http://us-routing-numbers.com">http://us-routing-numbers.com</a>
 * <a href="https://github.com/ianmcgowan/scripts/blob/master/match.py">match.py</a> - an example of brute-force fuzzy matching names between two excel sheets.
+* <a href="https://github.com/ianmcgowan/scripts/blob/master/chil.sh">chil.sh</a> - a small script to reset permissions, ownership and endian-ness.  Endian-ness can be a problem when moving accounts from Linux to AIX for example.
