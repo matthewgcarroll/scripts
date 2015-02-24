@@ -1,4 +1,11 @@
 #!/bin/bash
+# This script is to move files imported by DropBox from Camera Uploads to a more organized home
+# If you have a bunch of files from other sources, use exiftool to rename them to the
+# appropriate format - we don't use exiftool to do the final mv, because it tends to make dupes
+# http://www.sno.phy.queensu.ca/~phil/exiftool/filename.html
+# exiftool -r -d "tmp2/%Y/%Y%m/%Y-%m-%d %H.%M.%S.%%e" "-filename<CreateDate" tmp or
+# exiftool -r -d "tmp2/%Y-%m-%d %H.%M.%S.%%e" "-filename<CreateDate" tmp
+
 if [ "$1" = "" ]; then
   echo "Usage: mvuploads.sh dir-containing-files"
   exit 1
@@ -21,7 +28,7 @@ do
       echo "month error!:$month:"
       continue
     fi
-    dir="$HOME/OneDrive/Archive/$year/${year}${month}"
+    dir="$HOME/OneDrive/Pictures/$year/${year}${month}"
     mkdir -p "$dir"
     if [ -d "$dir" ];
     then
