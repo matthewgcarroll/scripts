@@ -1,5 +1,9 @@
 #!/bin/bash
-cd "~/Dropbox/Camera Uploads"
+if [ "$1" = "" ]; then
+  echo "Usage: mvuploads.sh dir-containing-files"
+  exit 1
+fi
+cd "$1"
 for file in *
 do
   if [[ -f "$file" && $file =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2} ]];
@@ -17,7 +21,7 @@ do
       echo "month error!:$month:"
       continue
     fi
-    dir="~OneDrive/Archive/$year/${year}${month}"
+    dir="$HOME/OneDrive/Archive/$year/${year}${month}"
     mkdir -p "$dir"
     if [ -d "$dir" ];
     then
