@@ -4,46 +4,44 @@
 # appropriate format - we don't use exiftool to do the final mv, because it tends to make dupes
 # http://www.sno.phy.queensu.ca/~phil/exiftool/filename.html
 # exiftool -r -d "tmp2/%Y/%Y%m/%Y-%m-%d %H.%M.%S.%%e" "-filename<CreateDate" tmp or
-# exiftool -r -d "tmp2/%Y-%m-%d %H.%M.%S.%%e" "-filename<CreateDate" tmp
+# exiftool -r -d "%Y-%m-%d %H.%M.%S%%-c.%%le" "-filename<CreateDate" .
 
 if [ "$1" = "" ]; then
-  echo "Usage: mvuploads.sh dir-containing-files"
+  echo "Usage: mvuploads.sh source-dir target-dir"
   exit 1
 fi
-cd "$1"
-for file in *
+
+target="/Users/ian/Pictures/Organized"
+if [ "$2" != "" ]; then
+  target=$2
+fi
+
+find -E $1 -type f -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}\.[0-9]{2}\.[0-9]{2}.*' |
+while read filename
 do
-  if [[ -f "$file" && $file =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2} ]];
+  #sdir=$(dirname "$filename")
+  file=$(basename "$filename")
+  if [[ -f "$filename" && $file =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2} ]];
   then
-    echo $file
     year=${file:0:4}
     month=${file:5:2}
-    if [[ ! $year =~ ^[0-9]{4}$ ]];
-    then
-      echo "year error!" $year
-      continue
-    fi
-    if [[ ! $month =~ ^[0-9]{2}$ ]];
-    then
-      echo "month error!:$month:"
-      continue
-    fi
-    dir="$HOME/OneDrive/Pictures/$year/${year}${month}"
+    dir="${target}/$year/${year}-${month}"
     mkdir -p "$dir"
     if [ -d "$dir" ];
     then
       if [ -f "$dir/$file" ];
       then
-        diff "$file" "$dir/$file"
+        diff "$filename" "$dir/$file"
         if [ $? == 0 ];
         then
           echo "File already exists, matches this file"
-          rm "$file"
+          rm "$filename"
         else
           echo "$dir/$file modified version exists, not copying"
         fi
       else
-        mv "$file" $dir
+        echo mv "$filename" "$dir"
+        mv "$filename" "$dir"
       fi
     fi
   fi
