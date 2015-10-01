@@ -1,0 +1,103 @@
+#!/bin/ksh
+
+# Acc is Global!
+acc=""
+
+yorn()
+{
+    # A function to prompt (with $1) and get a Y or N response,
+    # return value in $?
+    while :
+    do
+        read yorn?"$1"
+        case $yorn in
+            y|Y|yes|YES)   return 1;;
+            n|N|no|NO|/)   return 0;;
+            *) echo "Please answer Y or N";;
+        esac
+    done
+}
+
+pick()
+{
+    # Function to pick an account for archiving, zapping, udt'ing etc..
+    # Params:
+    #   $1=Type of command to run: archive, udt, zap, unzip
+    #   $2=just for udt, pattern/filter to use
+
+    tfile=`mktemp`
+
+    # First choose type of files
+    case $1 in
+    archive|udt|zap)
+        /opt/freeware/bin/find /info/           -maxdepth 1 -type d >  $tfile 2>/dev/null
+        /opt/freeware/bin/find /info/MONTH.END/ -maxdepth 1 -type d >> $tfile 2>/dev/null
+        ;;
+    unzip)
+        ls /info/MONTH.END/*.tar.gz > $tfile 2>/dev/null
+        ;;
+    esac
+
+    # Now prompt for selection, if needed
+    case $1 in
+    udt)
+        pattern=$2
+        ;;
+    archive|unzip|zap)
+        read pattern?"Enter part of the name to search for:"
+        if [ "$pattern" = "" ]; then
+            rm $tfile
+            return 1;
+        fi
+        ;;
+    esac
+
+    acc=`filepicker $tfile $pattern`
+    if [ $? -ne 0 ]; then
+        rm $tfile
+        return 1
+    fi
+    rm $tfile
+    cd $dirname ; /opt/freeware/bin/tar zcvf /info/zipfiles/$basename.tar.gz $basename
+    date
+    yorn "Remove account? (Y/N):"
+      if [ $? -eq 1 ]; then
+        echo "rm -rf $acc"
+        rm -rf $acc
+      fi
+      read asdf?"[ENTER] to continue:"
+    fi
+    ;;
+   z|Z|zap|ZAP)
+        pick zap
+        if [ $? -eq 0 ]; then
+            echo "rm -rf $acc"
+            yorn "Are you sure? (Y/N):"
+            if [ $? -eq 1 ]; then
+                rm -rf $acc
+                date
+                read asdf?"[ENTER] to continue:"
+            fi
+        fi
+        ;;
+   u|U|unzip|UNZIP)
+        pick unzip
+        if [ $? -eq 0 ]; then
+            cd /info/MONTH.END
+            /opt/freeware/bin/tar -k -zxvf $acc
+            date
+            yorn "Remove zip file? (Y/N):"
+            if [ $? -eq 1 ]; then
+                echo "rm -f $acc"
+                rm -f $acc
+            fi
+        fi
+        ;;
+    *)
+        pick udt $selection
+        if [ $? -eq 0 ]; then
+            /info/runudt $acc
+        fi
+        ;;
+    esac
+done
