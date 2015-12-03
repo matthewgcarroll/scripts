@@ -1,5 +1,8 @@
 #!/bin/ksh
 
+# A script to dynamically choose accounts
+# Needs gnu find, as well as filepicker script
+
 # Acc is Global!
 acc=""
 
@@ -31,7 +34,7 @@ pick()
     case $1 in
     archive|udt|zap)
         /opt/freeware/bin/find /info/           -maxdepth 1 -type d >  $tfile 2>/dev/null
-        /opt/freeware/bin/find /info/MONTH.END/ -maxdepth 1 -type d >> $tfile 2>/dev/null
+        #/opt/freeware/bin/find /info/MONTH.END/ -maxdepth 1 -type d >> $tfile 2>/dev/null
         ;;
     unzip)
         ls /info/MONTH.END/*.tar.gz > $tfile 2>/dev/null
@@ -58,16 +61,47 @@ pick()
         return 1
     fi
     rm $tfile
-    cd $dirname ; /opt/freeware/bin/tar zcvf /info/zipfiles/$basename.tar.gz $basename
-    date
-    yorn "Remove account? (Y/N):"
-      if [ $? -eq 1 ]; then
-        echo "rm -rf $acc"
-        rm -rf $acc
-      fi
-      read asdf?"[ENTER] to continue:"
-    fi
-    ;;
+    return 0
+}
+
+while :
+do
+   clear
+   cat << EOF
+             Welcome to InfoLease
+
+     Account/Action Selection
+     ------------------------
+     a)rchive to zip an account
+     u)nzip   to unzip an account in /info/MONTH.END
+     x)it, /  to quit
+     z)ap     to zap/delete an account
+
+     Enter part of the account name to search
+
+EOF
+   read selection?"Enter your selection:"
+
+   case $selection in
+   x|X|/|"")
+        exit
+        ;;
+   a|A|archive|ARCHIVE)
+        pick archive
+        if [ $? -eq 0 ]; then
+            dirname=`dirname $acc`
+            basename=`basename $acc`
+            echo "cd $dirname ; /opt/freeware/bin/tar zcvf /info/zipfiles/$basename.tar.gz $basename"
+            cd $dirname ; /opt/freeware/bin/tar zcvf /info/zipfiles/$basename.tar.gz $basename
+            date
+            yorn "Remove account? (Y/N):"
+            if [ $? -eq 1 ]; then
+                echo "rm -rf $acc"
+                rm -rf $acc
+            fi
+            read asdf?"[ENTER] to continue:"
+        fi
+        ;;
    z|Z|zap|ZAP)
         pick zap
         if [ $? -eq 0 ]; then
