@@ -14,15 +14,18 @@ from email import Encoders
 # These args need to be wrapped in "" if there are spaces
 send_from=str(sys.argv[1])
 send_to=str(sys.argv[2])
-subject=str(sys.argv[3])
-text=str(sys.argv[4])
-file=str(sys.argv[5])
-server="smtp.mydomain.com"
+send_cc=str(sys.argv[3])
+send_bcc=str(sys.argv[4])
+subject=str(sys.argv[5])
+text=str(sys.argv[6])
+file=str(sys.argv[7])
+server="smtpz-om.bankofthewest.com"
 
 # Create the message body
 msg = MIMEMultipart()
 msg['From'] = send_from
 msg['To'] = send_to
+msg['Cc'] = send_cc
 msg['Date'] = formatdate(localtime=True)
 msg['Subject'] = subject
 msg.attach( MIMEText(text) )
@@ -36,5 +39,5 @@ msg.attach(part)
 
 # Just send it!
 smtp = smtplib.SMTP(server)
-smtp.sendmail(send_from, send_to, msg.as_string())
+smtp.sendmail(send_from, send_to+","+send_cc+","+send_bcc, msg.as_string())
 smtp.close()
