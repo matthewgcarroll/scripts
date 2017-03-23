@@ -5,7 +5,21 @@ then
   exit 1
 fi
 
-echo "fix permissions, ownership and endian-ness for account: " $1
+echo "fix permissions, ownership and endian-ness for account: $1"
+
+cd /info
+
+if [[ ! -d $1 ]]
+then
+  echo "$1 is not a directory"
+  exit 1
+fi
+
+if [[ ! -f $1/VOC ]]
+then
+  echo "$1 is not an Infolease account"
+  exit 1
+fi
 
 chmod -R 775 $1
 chown -R dsiroot.info $1
